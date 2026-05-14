@@ -110,7 +110,10 @@ router.post(
     }
   }
 );
-
+// ==========================================
+// MÓDULO DE USUARIO: LOGIN Y AUTENTICACIÓN 
+// Desarrollado por: Walter Pachard
+// ==========================================
 router.post(
   '/login',
   [
