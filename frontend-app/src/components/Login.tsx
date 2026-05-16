@@ -1,10 +1,15 @@
 import React, { useState } from "react";
+// 1. Importamos el hook de navegación de react-router-dom
+import { useNavigate } from "react-router-dom";
 
 export const Login: React.FC = () => {
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  // 2. Inicializamos el navegador
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,7 +34,8 @@ export const Login: React.FC = () => {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       
-      alert("¡Login exitoso! Bienvenido " + data.user.username);
+      // 3. Redireccionamos al usuario a la vista principal en lugar de dejarlo estancado
+      navigate("/dashboard");
     } catch (err: any) {
       setError(err.message || "Ocurrió un error inesperado");
     } finally {
@@ -87,6 +93,7 @@ export const Login: React.FC = () => {
   );
 };
 
+// Mantén tu objeto de 'const styles' exactamente igual debajo...
 const styles: { [key: string]: React.CSSProperties } = {
   container: {
     display: "flex",
