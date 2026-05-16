@@ -1,53 +1,74 @@
 /**
  * @swagger
  * /api/auth/register:
- *   post:
- *     summary: Register a new user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/RegisterRequest'
- *     responses:
- *       201:
- *         description: User registered successfully
- *       400:
- *         description: Validation error
- *       409:
- *         description: Username already exists
+ * post:
+ * summary: Register a new user
+ * tags: [Auth]
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * $ref: '#/components/schemas/RegisterRequest'
+ * responses:
+ * 201:
+ * description: User registered successfully
+ * 400:
+ * description: Validation error
+ * 409:
+ * description: Username already exists
  */
 
 /**
  * @swagger
  * /api/auth/login:
- *   post:
- *     summary: Login user
- *     tags: [Auth]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/LoginRequest'
- *     responses:
- *       200:
- *         description: Login successful
- *       401:
- *         description: Invalid credentials
+ * post:
+ * summary: Login user
+ * tags: [Auth]
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * $ref: '#/components/schemas/LoginRequest'
+ * responses:
+ * 200:
+ * description: Login successful
+ * 401:
+ * description: Invalid credentials
  */
 
 const express = require('express');
-const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
-const Usuario = require('../models/usuario');
-const Cliente = require('../models/cliente');
-const { generateToken } = require('../middleware/auth');
 const { ValidationError, UnauthorizedError, ConflictError } = require('../utils/errors');
 
 const router = express.Router();
 
+// SIMULACIÓN DE BASE DE DATOS EN MEMORIA (ARRAYS LOCALES)
+// Ponemos un usuario por defecto para que puedan probar el login de inmediato
+const usuariosDB = [
+  {
+    id: 1,
+    username: "admin",
+    password: "123", // En texto plano ya que no usaremos bcrypt con DB dinámica
+    rol: "admin",
+    clienteId: 1
+  }
+];
+
+const clientesDB = [
+  {
+    id: 1,
+    identificacion: "9999999999",
+    nombre: "Admin",
+    apellido: "General",
+    email: "admin@tienda.com",
+    telefono: "0999999999",
+    direccion: "Cuenca"
+  }
+];
+
+// RUTA DE REGISTRO
 router.post(
   '/register',
   [
@@ -66,43 +87,45 @@ router.post(
 
       const { username, password, email, nombre, apellido, telefono, direccion, rol } = req.body;
 
-      const existingUser = await Usuario.findOne({ where: { username } });
+      // Buscar si ya existe el usuario en nuestro array
+      const existingUser = usuariosDB.find(u => u.username === username);
       if (existingUser) {
         throw new ConflictError('Username already exists');
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      const cliente = await Cliente.create({
+      // Crear Cliente en memoria
+      const nuevoCliente = {
+        id: clientesDB.length + 1,
         identificacion: Date.now().toString(),
         nombre,
         apellido,
         email,
         telefono: telefono || '',
         direccion: direccion || ''
-      });
+      };
+      clientesDB.push(nuevoCliente);
 
-      const usuario = await Usuario.create({
+      // Crear Usuario en memoria
+      const nuevoUsuario = {
+        id: usuariosDB.length + 1,
         username,
-        password: hashedPassword,
+        password, // Guardamos directo en texto plano para simplificar las pruebas locales
         rol: rol || 'user',
-        clienteId: cliente.id
-      });
+        clienteId: nuevoCliente.id
+      };
+      usuariosDB.push(nuevoUsuario);
 
-      const token = generateToken({
-        id: usuario.id,
-        username: usuario.username,
-        rol: usuario.rol
-      });
+      // Token falso simulado para cumplir con el frontend
+      const token = "token-falso-simulado-xyz123";
 
       res.status(201).json({
         message: 'User registered successfully',
         token,
         user: {
-          id: usuario.id,
-          username: usuario.username,
-          rol: usuario.rol,
-          clienteId: cliente.id
+          id: nuevoUsuario.id,
+          username: nuevoUsuario.username,
+          rol: nuevoUsuario.rol,
+          clienteId: nuevoCliente.id
         }
       });
     } catch (error) {
@@ -110,6 +133,7 @@ router.post(
     }
   }
 );
+
 // ==========================================
 // MÓDULO DE USUARIO: LOGIN Y AUTENTICACIÓN 
 // Desarrollado por: Walter Pachard
@@ -129,21 +153,19 @@ router.post(
 
       const { username, password } = req.body;
 
-      const usuario = await Usuario.findOne({ where: { username } });
+      // Buscar el usuario en nuestro array simulado
+      const usuario = usuariosDB.find(u => u.username === username);
       if (!usuario) {
         throw new UnauthorizedError('Invalid credentials');
       }
 
-      const isValidPassword = await bcrypt.compare(password, usuario.password);
-      if (!isValidPassword) {
+      // Validar contraseña directa (texto plano)
+      if (password !== usuario.password) {
         throw new UnauthorizedError('Invalid credentials');
       }
 
-      const token = generateToken({
-        id: usuario.id,
-        username: usuario.username,
-        rol: usuario.rol
-      });
+      // Token falso simulado
+      const token = "token-falso-simulado-xyz123";
 
       res.json({
         message: 'Login successful',
