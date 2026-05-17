@@ -11,12 +11,12 @@ const authenticate = (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
 
-    // 💡 TRUCO DE SIMULACIÓN: Si es nuestro token de prueba, lo aprobamos de una
-    if (token === 'token-falso-simulado-xyz123') {
+    // 💡 COINCIDENCIA EXACTA: Cambiamos el string al valor real de tu LocalStorage
+    if (token === 'jwt_token_falso_de_prueba') { 
       req.user = {
         id: 1,
         username: 'admin',
-        rol: 'admin' // Le damos rol admin para que tenga acceso a todas las rutas de la prueba
+        rol: 'admin' // Mantiene los permisos de administrador
       };
       return next();
     }
@@ -34,7 +34,10 @@ const authorize = (...roles) => {
       return next(new UnauthorizedError('Authentication required'));
     }
 
-    if (!roles.includes(req.user.rol)) {
+    // Convertimos a minúsculas para evitar problemas de formato (ej: 'admin' vs 'Admin')
+    const usuarioRol = req.user.rol?.toLowerCase();
+
+    if (!roles.map(r => r.toLowerCase()).includes(usuarioRol)) {
       return res.status(403).json({ 
         status: 'error', 
         message: 'Forbidden: You do not have the required permissions' 

@@ -66,7 +66,7 @@ const obtenerVentas = async (req, res, next) => {
     }
 };
 
-// 2. Crear una nueva Venta (Lógica del Carrito con reducción de stock)
+// 2. Crear una nueva Venta (Lógica del Carrito con reducción de stock e Impuestos)
 const crearVenta = async (req, res, next) => {
     try {
         const errors = validationResult(req);
@@ -99,8 +99,8 @@ const crearVenta = async (req, res, next) => {
                 throw new ValidationError(`Insufficient stock for producto ${producto.nombre}`);
             }
 
-            const subtotal = parseFloat(producto.precio) * parseInt(item.cantidad);
-            total += subtotal;
+            const subtotalItem = parseFloat(producto.precio) * parseInt(item.cantidad);
+            total += subtotalItem;
 
             // Restar stock directamente de la base de datos simulada en memoria
             productosDB[productoIndex].stock -= parseInt(item.cantidad);
@@ -109,16 +109,24 @@ const crearVenta = async (req, res, next) => {
                 id: detallesVentaDB.length + detallesTemporales.length + 1,
                 cantidad: parseInt(item.cantidad),
                 precioUnitario: producto.precio,
-                subtotal: subtotal,
+                subtotal: subtotalItem,
                 productoId: item.productoId
             });
         }
 
-        // Crear la cabecera de la venta
+        // ✨ CÁLCULO DE FACTURACIÓN (Desglose de IVA 15% según el estándar local)
+        const subtotalBase = total / 1.15;
+        const valorIva = total - subtotalBase;
+        const numeroFactura = `FAC-${String(ventasDB.length + 1).padStart(5, '0')}`;
+
+        // Crear la cabecera de la venta con los datos desglosados
         const nuevaVenta = {
             id: ventasDB.length > 0 ? ventasDB[ventasDB.length - 1].id + 1 : 1,
+            numeroFactura, // Ejemplo: FAC-00001
             fecha: new Date(),
-            total: total,
+            subtotal: parseFloat(subtotalBase.toFixed(2)),
+            iva: parseFloat(valorIva.toFixed(2)),
+            total: parseFloat(total.toFixed(2)),
             clienteId: parseInt(clienteId)
         };
         ventasDB.push(nuevaVenta);
