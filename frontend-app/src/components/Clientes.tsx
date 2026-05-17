@@ -319,7 +319,6 @@ const styles: { [key: string]: React.CSSProperties } = {
   tr: {
     transition: "background 0.2s",
     backgroundColor: "rgba(30, 41, 59, 0.2)",
-    component: "tr",
   },
   errorAlert: {
     backgroundColor: "#fde8e8",
