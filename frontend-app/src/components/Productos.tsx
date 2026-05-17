@@ -199,7 +199,8 @@ export const Productos: React.FC = () => {
                       color: producto.stock < 5 ? "#ff4d4d" : "#e2e8f0",
                       fontWeight: producto.stock < 5 ? "bold" : "normal"
                     }}>
-                      {producto.stock} uds {producto.stock < 5 && "(Stock Bajo)"}
+                      {/* REPARADO: Cambiado 'uds' por 'unidades' */}
+                      {producto.stock} unidades {producto.stock < 5 && "(Stock Bajo)"}
                     </td>
                   </tr>
                 ))}

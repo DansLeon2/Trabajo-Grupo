@@ -41,9 +41,14 @@ export const Ventas: React.FC = () => {
   const [carrito, setCarrito] = useState<ItemCarrito[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
+  // Estados para los totales unificados con el Backend
+  const [subtotalBase, setSubtotalBase] = useState<number>(0);
+  const [ivaCalculado, setIvaCalculado] = useState<number>(0);
+  const [totalGeneral, setTotalGeneral] = useState<number>(0);
+
   const token = localStorage.getItem("token");
 
-  // 1. Cargar Clientes y Productos en paralelo al montar el componente
+  // 1. Cargar Clientes y Productos en paralelo
   const cargarDatosIniciales = async () => {
     try {
       setLoading(true);
@@ -80,6 +85,17 @@ export const Ventas: React.FC = () => {
       cargarDatosIniciales();
     }
   }, [token]);
+
+  // 🔥 EFECTO MÁGICO: Recalcula los totales en tiempo real cada vez que el carrito cambia
+  useEffect(() => {
+    const subtotal = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
+    const iva = subtotal * 0.15; // 15% de IVA sobre la base, cuadrado con el backend
+    const total = subtotal + iva;
+
+    setSubtotalBase(subtotal);
+    setIvaCalculado(iva);
+    setTotalGeneral(total);
+  }, [carrito]);
 
   // 2. Agregar ítem al Carrito de la Factura
   const agregarAlCarrito = () => {
@@ -131,11 +147,6 @@ export const Ventas: React.FC = () => {
     setCarrito(carrito.filter((item) => item.productoId !== id));
   };
 
-  // 4. Cálculos automáticos de la Factura (Esquema IVA 15%)
-  const totalGeneral = carrito.reduce((acc, item) => acc + item.precio * item.cantidad, 0);
-  const subtotalBase = totalGeneral / 1.15;
-  const ivaCalculado = totalGeneral - subtotalBase;
-
   const infoClienteActual = clientes.find((c) => c.id === parseInt(clienteSeleccionado));
 
   // 5. Enviar la Factura al Backend local
@@ -174,12 +185,12 @@ export const Ventas: React.FC = () => {
         throw new Error(resData.message || "Error al emitir la factura");
       }
 
-      alert("¡Factura guardada con éxito y stock actualizado!");
+      alert("¡Factura guardada con éxito y stock modificado en el servidor!");
       
       setCarrito([]);
       setClienteSeleccionado("");
       
-      await cargarDatosIniciales();
+      await cargarDatosIniciales(); // Recarga catálogos para refrescar los stocks visuales
     } catch (err: any) {
       alert(`Error: ${err.message}`);
     } finally {
@@ -325,9 +336,9 @@ export const Ventas: React.FC = () => {
 
               <div style={styles.lineaDiscontinua} />
 
-              {/* DESGLOSE OBLIGATORIO DE IMPUESTOS */}
+              {/* DESGLOSE DE IMPUESTOS AJUSTADO A PRECIOS NETOS */}
               <div style={styles.totalesRow}>
-                <span>Subtotal (Base 15%):</span>
+                <span>Subtotal Neto:</span>
                 <span>${subtotalBase.toFixed(2)}</span>
               </div>
               <div style={styles.totalesRow}>
