@@ -123,7 +123,7 @@ const productosDB = [
   {
     id: 1,
     codigo: "PROD001",
-    nombre: "Martillo de uña 16oz",
+    nombre: "Martillo",
     precio: 12.50,
     stock: 45,
     categoriaId: 1,

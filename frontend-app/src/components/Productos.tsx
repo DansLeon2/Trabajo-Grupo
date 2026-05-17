@@ -102,7 +102,7 @@ export const Productos: React.FC = () => {
       setPrecio("");
       setStock("");
 
-      alert("¡Producto guardado exitosamente en el inventario local!");
+      alert("¡Producto guardado exitosamente!");
       await cargarProductos(); // Recarga la tabla al instante
     } catch (err: any) {
       setError(err.message || "Ocurrió un error al guardar el producto");
@@ -113,7 +113,7 @@ export const Productos: React.FC = () => {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.title}>📦 Gestión de Inventario (Productos Locales)</h2>
+      <h2 style={styles.title}>📦 Gestión de Inventario</h2>
 
       {error && <div style={styles.errorAlert}>{error}</div>}
 
