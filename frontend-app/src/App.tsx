@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { Login } from './components/Login';
 import { Clientes } from './components/Clientes'; 
 import { Productos } from './components/Productos'; // 💡 Importamos tu nuevo componente de Productos
+import { Ventas } from './components/Ventas'; // 🌟 REPARADO: Importamos tu componente de Ventas
 import './App.css';
 
 const DashboardReal = () => {
@@ -10,8 +11,8 @@ const DashboardReal = () => {
   const userString = localStorage.getItem("user");
   const user = userString ? JSON.parse(userString) : { username: "Usuario" };
 
-  // 💡 ESTADO PARA SABER QUÉ PESTAÑA ESTÁ ACTIVA ('clientes' o 'productos')
-  const [vistaActual, setVistaActual] = useState<'clientes' | 'productos'>('clientes');
+  // 💡 ESTADO REPARADO: Ahora acepta 'clientes', 'productos' o 'ventas'
+  const [vistaActual, setVistaActual] = useState<'clientes' | 'productos' | 'ventas'>('clientes');
 
   const handleLogout = () => {
     localStorage.clear();
@@ -48,7 +49,7 @@ const DashboardReal = () => {
               👥 Clientes
             </button>
 
-            {/* BOTÓN PRODUCTOS (¡Ya disponible!) */}
+            {/* BOTÓN PRODUCTOS */}
             <button 
               onClick={() => setVistaActual('productos')} // Cambia a la vista de productos
               style={{ 
@@ -59,7 +60,7 @@ const DashboardReal = () => {
                 backgroundColor: vistaActual === 'productos' ? "#1a4294" : "transparent", // Se ilumina si está activo
                 color: vistaActual === 'productos' ? "#fff" : "#aaa", 
                 fontWeight: "bold", 
-                cursor: "pointer", // Cambiado de 'not-allowed' a 'pointer'
+                cursor: "pointer", 
                 width: "100%",
                 transition: "all 0.2s ease"
               }}
@@ -67,9 +68,23 @@ const DashboardReal = () => {
               📦 Productos
             </button>
 
-            {/* BOTÓN VENTAS (Próximamente) */}
-            <button style={{ padding: "14px", textAlign: "left", borderRadius: "8px", border: "none", backgroundColor: "transparent", color: "#555", fontWeight: "600", cursor: "not-allowed", width: "100%" }}>
-              🛒 Crear Venta (Próximamente)
+            {/* 🌟 BOTÓN VENTAS (RESTAURADO Y OPERATIVO) */}
+            <button 
+              onClick={() => setVistaActual('ventas')} // Cambia a la vista de facturación
+              style={{ 
+                padding: "14px", 
+                textAlign: "left", 
+                borderRadius: "8px", 
+                border: "none", 
+                backgroundColor: vistaActual === 'ventas' ? "#1a4294" : "transparent", // Se ilumina si está activo
+                color: vistaActual === 'ventas' ? "#fff" : "#aaa", 
+                fontWeight: "bold", 
+                cursor: "pointer", // Cambiado de 'not-allowed' a 'pointer'
+                width: "100%",
+                transition: "all 0.2s ease"
+              }}
+            >
+              🛒 Crear Venta
             </button>
           </nav>
         </div>
@@ -84,8 +99,10 @@ const DashboardReal = () => {
 
       {/* CONTENIDO PRINCIPAL DINÁMICO */}
       <div style={{ flex: 1, padding: "40px", overflowY: "auto" }}>
-        {/* 💡 RENDERIZADO CONDICIONAL SEGÚN EL ESTADO */}
-        {vistaActual === 'clientes' ? <Clientes /> : <Productos />}
+        {/* 💡 RENDERIZADO CONDICIONAL COMPLETO */}
+        {vistaActual === 'clientes' && <Clientes />}
+        {vistaActual === 'productos' && <Productos />}
+        {vistaActual === 'ventas' && <Ventas />} 
       </div>
 
     </div>

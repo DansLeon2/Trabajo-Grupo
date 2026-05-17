@@ -97,7 +97,7 @@ router.get('/', authorize('admin', 'vendedor'), ventaController.obtenerVentas);
 // POST: Procesar venta del carrito (Solo Vendedores, según tu middleware original)
 router.post(
   '/',
-  authorize('vendedor'),
+  authorize('admin','vendedor'),
   [
     body('clienteId').isInt().withMessage('Cliente ID is required'),
     body('productos').isArray({ min: 1 }).withMessage('Productos array is required')
