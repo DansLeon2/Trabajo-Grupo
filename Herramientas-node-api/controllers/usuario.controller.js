@@ -4,7 +4,7 @@
 const usuariosDB = [
     {
         id: 1,
-        username: "admin",
+        username: "walter",
         password: "123", // Contraseña simple para pruebas
         nombreCompleto: "Administrador de Tienda",
         rol: "Administrador"
