@@ -1,13 +1,17 @@
-// frontend-app/src/App.tsx
+import { useState } from 'react'; // 💡 Añadimos useState para manejar las pestañas
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { Login } from './components/Login';
-import { Clientes } from './components/Clientes'; // Importamos el nuevo componente
+import { Clientes } from './components/Clientes'; 
+import { Productos } from './components/Productos'; // 💡 Importamos tu nuevo componente de Productos
 import './App.css';
 
 const DashboardReal = () => {
   const navigate = useNavigate();
   const userString = localStorage.getItem("user");
   const user = userString ? JSON.parse(userString) : { username: "Usuario" };
+
+  // 💡 ESTADO PARA SABER QUÉ PESTAÑA ESTÁ ACTIVA ('clientes' o 'productos')
+  const [vistaActual, setVistaActual] = useState<'clientes' | 'productos'>('clientes');
 
   const handleLogout = () => {
     localStorage.clear();
@@ -24,13 +28,47 @@ const DashboardReal = () => {
           <p style={{ fontSize: "14px", color: "#aaa", marginBottom: "40px" }}>Sesión: <strong style={{ color: "#fff" }}>{user.username}</strong></p>
           
           <nav style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            <button style={{ padding: "14px", textAlign: "left", borderRadius: "8px", border: "none", backgroundColor: "#1a4294", color: "#fff", fontWeight: "bold", cursor: "pointer", width: "100%" }}>
+            
+            {/* BOTÓN CLIENTES */}
+            <button 
+              onClick={() => setVistaActual('clientes')} // Cambia a la vista de clientes
+              style={{ 
+                padding: "14px", 
+                textAlign: "left", 
+                borderRadius: "8px", 
+                border: "none", 
+                backgroundColor: vistaActual === 'clientes' ? "#1a4294" : "transparent", // Se ilumina si está activo
+                color: vistaActual === 'clientes' ? "#fff" : "#aaa", 
+                fontWeight: "bold", 
+                cursor: "pointer", 
+                width: "100%",
+                transition: "all 0.2s ease"
+              }}
+            >
               👥 Clientes
             </button>
-            <button style={{ padding: "14px", textAlign: "left", borderRadius: "8px", border: "none", backgroundColor: "transparent", color: "#aaa", fontWeight: "600", cursor: "not-allowed", width: "100%" }}>
-              📦 Productos (Próximamente)
+
+            {/* BOTÓN PRODUCTOS (¡Ya disponible!) */}
+            <button 
+              onClick={() => setVistaActual('productos')} // Cambia a la vista de productos
+              style={{ 
+                padding: "14px", 
+                textAlign: "left", 
+                borderRadius: "8px", 
+                border: "none", 
+                backgroundColor: vistaActual === 'productos' ? "#1a4294" : "transparent", // Se ilumina si está activo
+                color: vistaActual === 'productos' ? "#fff" : "#aaa", 
+                fontWeight: "bold", 
+                cursor: "pointer", // Cambiado de 'not-allowed' a 'pointer'
+                width: "100%",
+                transition: "all 0.2s ease"
+              }}
+            >
+              📦 Productos
             </button>
-            <button style={{ padding: "14px", textAlign: "left", borderRadius: "8px", border: "none", backgroundColor: "transparent", color: "#aaa", fontWeight: "600", cursor: "not-allowed", width: "100%" }}>
+
+            {/* BOTÓN VENTAS (Próximamente) */}
+            <button style={{ padding: "14px", textAlign: "left", borderRadius: "8px", border: "none", backgroundColor: "transparent", color: "#555", fontWeight: "600", cursor: "not-allowed", width: "100%" }}>
               🛒 Crear Venta (Próximamente)
             </button>
           </nav>
@@ -46,8 +84,8 @@ const DashboardReal = () => {
 
       {/* CONTENIDO PRINCIPAL DINÁMICO */}
       <div style={{ flex: 1, padding: "40px", overflowY: "auto" }}>
-        {/* Renderizamos directamente el módulo de Clientes */}
-        <Clientes />
+        {/* 💡 RENDERIZADO CONDICIONAL SEGÚN EL ESTADO */}
+        {vistaActual === 'clientes' ? <Clientes /> : <Productos />}
       </div>
 
     </div>
