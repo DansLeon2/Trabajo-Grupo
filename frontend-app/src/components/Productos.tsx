@@ -13,7 +13,7 @@ export const Productos: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Estados del formulario de productos
+  
   const [codigo, setCodigo] = useState("");
   const [nombre, setNombre] = useState("");
   const [precio, setPrecio] = useState("");
@@ -22,7 +22,7 @@ export const Productos: React.FC = () => {
 
   const token = localStorage.getItem("token");
 
-  // 1. Cargar los productos desde el arreglo local del Backend
+  
   const cargarProductos = async () => {
     try {
       setLoading(true);
@@ -41,7 +41,7 @@ export const Productos: React.FC = () => {
         throw new Error(data.message || "Error al cargar productos");
       }
 
-      // Validamos si el backend devuelve el arreglo directo o envuelto en un objeto .data
+      
       if (Array.isArray(data)) {
         setProductos(data);
       } else if (data.data && Array.isArray(data.data)) {
@@ -62,13 +62,13 @@ export const Productos: React.FC = () => {
     }
   }, [token]);
 
-  // 2. Enviar el nuevo producto a la memoria del Backend
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
     setError(null);
 
-    // Validación básica en el frontend para asegurar números correctos
+    
     if (parseFloat(precio) <= 0 || parseInt(stock) < 0) {
       setError("El precio debe ser mayor a 0 y el stock no puede ser negativo");
       setSubmitting(false);
@@ -85,8 +85,8 @@ export const Productos: React.FC = () => {
         body: JSON.stringify({
           codigo,
           nombre,
-          precio: parseFloat(precio), // Nos aseguramos de enviarlo como número
-          stock: parseInt(stock),     // Nos aseguramos de enviarlo como entero
+          precio: parseFloat(precio), 
+          stock: parseInt(stock),     
         }),
       });
 
@@ -96,18 +96,18 @@ export const Productos: React.FC = () => {
         throw new Error(data.message || "Error al registrar producto");
       }
 
-      // Limpiar formulario tras el éxito
+      
       setCodigo("");
       setNombre("");
       setPrecio("");
       setStock("");
 
       alert("¡Producto guardado exitosamente!");
-      await cargarProductos(); // Recarga la tabla al instante
+      await cargarProductos(); 
     } catch (err: any) {
       setError(err.message || "Ocurrió un error al guardar el producto");
     } finally {
-      setSubmitting(false); // Descongela el botón pase lo que pase
+      setSubmitting(false); 
     }
   };
 
@@ -199,7 +199,8 @@ export const Productos: React.FC = () => {
                       color: producto.stock < 5 ? "#ff4d4d" : "#e2e8f0",
                       fontWeight: producto.stock < 5 ? "bold" : "normal"
                     }}>
-                      {producto.stock} uds {producto.stock < 5 && "(Stock Bajo)"}
+                      {/* REPARADO: Se removió la etiqueta 'uds' para dejar un diseño minimalista */}
+                      {producto.stock} {producto.stock < 5 && "(Stock Bajo)"}
                     </td>
                   </tr>
                 ))}
